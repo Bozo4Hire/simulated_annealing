@@ -2,7 +2,7 @@ import math
 from random import choices, randint, randrange, random
 from typing import Callable, List, Tuple
 #import matplotlib as mpl
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import optimization_functions as optF
 
@@ -47,12 +47,18 @@ def geneticAlgorithm(
         b : float,
         fitnessFunc : OptFunction) \
         -> Population:
+    
+    gens=np.array([])
+    fit =np.array([])
+    f = np.array([])
+    f_mean =np.array([])
+
     population = generatePopulation(popSize, genomeLen, a, b)
+    population = sortPopulation(population, fitnessFunc)
 
     #population += [[0,0,0,0,0]]
     for i in range(nGenerations):
         print(i)
-        population = sortPopulation(population, fitnessFunc)
 
         if fitnessFunc(population[0]) == 0:
             break
@@ -66,8 +72,12 @@ def geneticAlgorithm(
             newGeneration += [offspringA, offspringB]
 
         population = newGeneration
+        population = sortPopulation(population, fitnessFunc)
+        
+        gens = np.append(gens, i+1)
+        fit = np.append(fit, fitnessFunc(population[0]))
+        f_mean = np.append(f_mean, sum(fitnessFunc(k) for k in population)/popSize)
 
-    population = sortPopulation(population, fitnessFunc)
     print("\nAlgoritmo Genetico")
     print("- Tamaño de Genotipo:\t\t", genomeLen)
     print("- Tamaño de Población:\t\t", popSize)
@@ -86,6 +96,22 @@ def geneticAlgorithm(
     print("Genotipo:", population[0])
     print("Fitness:", fitnessFunc(population[0]), "\n")
 
+    #Grafica 1
+    plt.figure()
+    plt.plot(gens,fit)
+    plt.title("Algoritmo Genetico")
+    plt.xlabel("Generaciones", size = 16,)
+    plt.ylabel("Valor maximo de funcion objetivo", size = 12,)
+    plt.show()
+
+    #Grafica 2
+    plt.figure()
+    plt.plot(gens,f_mean)
+    plt.title("Algoritmo Genetico")
+    plt.xlabel("Generaciones", size = 16)
+    plt.ylabel("Fitness promedio", size = 12)
+    plt.show()
+    
     return population
 
 """ # Real Number range: a - lower bound, b - upper bound
@@ -102,7 +128,9 @@ print("Testing Crossover:\nParents:", newPop[0], newPop[1], "\nOffSpring:", sing
 newGen = [1,1,1,1,1,1,1,1]
 print(rosenbrocksBanana(newGen))
  """
-newPop = geneticAlgorithm(30, 5, 500000, -5.12, 5.12, optF.rastrigin)
-print("\nResultados")
+newPop = geneticAlgorithm(30, 5, 5000, -5.12, 5.12, optF.rastrigin)
+
+""" print("\nResultados")
 for i in range(0, len(newPop)-1):
     print(newPop[i], ":", optF.rastrigin(newPop[i]))
+ """
