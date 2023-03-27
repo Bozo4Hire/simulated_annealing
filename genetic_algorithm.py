@@ -74,9 +74,14 @@ def geneticAlgorithm(
         population = newGeneration
         population = sortPopulation(population, fitnessFunc)
         
-        gens = np.append(gens, i+1)
+        
+        total = 0
+        for k in range(0, len(population)-1):
+            total += fitnessFunc(population[k])
+
+        gens = np.append(gens, i+1)    
         fit = np.append(fit, fitnessFunc(population[0]))
-        f_mean = np.append(f_mean, sum(fitnessFunc(k) for k in population)/popSize)
+        f_mean = np.append(f_mean, total/popSize)
 
     print("\nAlgoritmo Genetico")
     print("- Tamaño de Genotipo:\t\t", genomeLen)

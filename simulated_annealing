@@ -41,12 +41,12 @@ def simulated_annealing(
         curCost = objectiveFunc(curSol)
         newCost = objectiveFunc(newSol)
         
+        delta = newCost - curCost
         if newCost < curCost:
             curSol = newSol
             if newCost < objectiveFunc(bestSol):
                 bestSol = newSol
         else:
-            delta = newCost - curCost
             if random.random() < math.exp(-delta / temperature):
                 curSol = newSol
         
@@ -56,7 +56,7 @@ def simulated_annealing(
     print("Objective Function value:", objectiveFunc(bestSol))
     return bestSol
 
-temperature = 100
+temperature = 1000
 coolingRate = 0.95
 stopingTemp = 1e-8
 
