@@ -1,6 +1,7 @@
 import math
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 from typing import List, Callable
 import optimization_functions as optF
 
@@ -26,9 +27,15 @@ def simulated_annealing(
         b : float, 
         temperature : float, 
         coolingRate : float, 
-        stopingTemp : float) \
+        stopingTemp : float,
+        restartTreshold : float) \
             -> Solution:
     
+    iterations = np.array([])
+    temperatures = np.array([])
+    bestSolutions = np.array([])
+
+    initialTemp = temperature
     initialSol = generateSolution(solutionLen, a, b)
     print("InitialSolution:", initialSol)
     print("Objective Function value:", optF.rastrigin(initialSol))
@@ -36,7 +43,12 @@ def simulated_annealing(
     curSol = initialSol
     bestSol = initialSol
     
+    k = 0
     while temperature > stopingTemp:
+        k += 1
+        iterations = np.append(iterations, k)
+        temperatures = np.append(temperatures, temperature)
+
         newSol = simplePerturbation(curSol.copy(), a, b)
         curCost = objectiveFunc(curSol)
         newCost = objectiveFunc(newSol)
@@ -51,13 +63,40 @@ def simulated_annealing(
                 curSol = newSol
         
         temperature *= coolingRate
+
+        # Cuando se ha llegado a la mitad de la temperatura inticial y si el mejor resultado
+        # no supera al valor de treshold establecido, la temperatura se reinicia 
+        if temperature < initialTemp/2 and objectiveFunc(bestSol) > restartTreshold:
+            temperature = initialTemp
+
+        bestSolutions = np.append(bestSolutions, objectiveFunc(bestSol))
     
+
     print("Best solution:", bestSol)
     print("Objective Function value:", objectiveFunc(bestSol))
+
+    # Grafica de temperaturas
+    plt.figure()
+    plt.plot(iterations,temperatures)
+    plt.title("Simulated Annealing")
+    plt.xlabel("Número de Iteración")
+    plt.ylabel("Temperatura")
+    plt.show()
+
+    # Grafica de Mejor Soluciones por iteracion
+    plt.figure()
+    plt.plot(iterations,bestSolutions)
+    plt.title("Simulated Annealing")
+    plt.xlabel("Número de Iteración")
+    plt.ylabel("E(S)")
+    plt.show()
+
+
     return bestSol
 
-temperature = 1000
+temperature = 100
 coolingRate = 0.95
-stopingTemp = 1e-8
+stopingTemp = 1e-12
+restartTreshold = 60
 
-bestSol = simulated_annealing(optF.rastrigin, 5, -5.12, 5.12, temperature, coolingRate, stopingTemp)
+bestSol = simulated_annealing(optF.rastrigin, 5, -5.12, 5.12, temperature, coolingRate, stopingTemp, restartTreshold)
