@@ -37,8 +37,6 @@ def simulated_annealing(
 
     initialTemp = temperature
     initialSol = generateSolution(solutionLen, a, b)
-    print("InitialSolution:", initialSol)
-    print("Objective Function value:", optF.rastrigin(initialSol))
 
     curSol = initialSol
     bestSol = initialSol
@@ -61,7 +59,9 @@ def simulated_annealing(
         else:
             if random.random() < math.exp(-delta / temperature):
                 curSol = newSol
-        
+            if random.random() < math.exp(-delta / temperature) and temperature < initialTemp:
+                temperature *= 1/coolingRate
+
         temperature *= coolingRate
 
         # Cuando se ha llegado a la mitad de la temperatura inticial y si el mejor resultado
@@ -69,11 +69,24 @@ def simulated_annealing(
         if temperature < initialTemp/2 and objectiveFunc(bestSol) > restartTreshold:
             temperature = initialTemp
 
-        bestSolutions = np.append(bestSolutions, objectiveFunc(bestSol))
-    
+        """ if temperature < initialTemp/4 and objectiveFunc(bestSol) > restartTreshold/2:
+            temperature = initialTemp/2 """
 
-    print("Best solution:", bestSol)
-    print("Objective Function value:", objectiveFunc(bestSol))
+        bestSolutions = np.append(bestSolutions, objectiveFunc(bestSol))
+
+    print("\nSimulated Annealing\n")
+    print("Initial Parameters")
+    print("\tInitial Temperature:", initialTemp)
+    print("\tStopping Temperature:", stopingTemp)
+    print("\tCooling Rate (Exponential):", coolingRate)
+    print("\tRestart treshold value:", restartTreshold)
+
+    print("\nResults")
+    print("\tTotal iterations:", k)
+    print("\tInitial Solution:", initialSol)
+    print("\tObjective Function value:", objectiveFunc(initialSol))
+    print("\n\tBest Solution:", bestSol)
+    print("\tObjective Function value:", objectiveFunc(bestSol))
 
     # Grafica de temperaturas
     plt.figure()
@@ -91,12 +104,12 @@ def simulated_annealing(
     plt.ylabel("E(S)")
     plt.show()
 
-
     return bestSol
 
-temperature = 100
+temperature = 200
 coolingRate = 0.95
 stopingTemp = 1e-12
 restartTreshold = 60
 
-bestSol = simulated_annealing(optF.rastrigin, 5, -5.12, 5.12, temperature, coolingRate, stopingTemp, restartTreshold)
+simulated_annealing(optF.rastrigin, 5, -5.12, 5.12, temperature, coolingRate, stopingTemp, restartTreshold)
+simulated_annealing(optF.threeHumpCamel, 2, -5, 5, temperature, coolingRate, stopingTemp, restartTreshold)

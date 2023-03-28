@@ -25,9 +25,11 @@ def biasedMutation(genome: Genome, a : float, b: float) -> Genome:
     return
 
 def singlePointCrossover(p1: Genome, p2: Genome) -> Tuple[Genome, Genome]:
-    i = randrange(1, len(p1)-1)
-    return p1[0:i] + p2[i:], p1[0:i] + p2[i:]
-
+    i = randrange(0, len(p1))
+    if len(p1) > 1:
+        return p1[0:i] + p2[i:], p2[0:i] + p1[i:]
+    else:
+        raise TypeError("Genome too short to perform crossover function")
 
 def parentSelection(population: Population, optFunc : OptFunction, n: int) -> Population:
     return choices(
@@ -58,7 +60,7 @@ def geneticAlgorithm(
 
     #population += [[0,0,0,0,0]]
     for i in range(nGenerations):
-        print(i)
+        #print(i)
 
         if fitnessFunc(population[0]) == 0:
             break
@@ -73,8 +75,7 @@ def geneticAlgorithm(
 
         population = newGeneration
         population = sortPopulation(population, fitnessFunc)
-        
-        
+             
         total = 0
         for k in range(0, len(population)-1):
             total += fitnessFunc(population[k])
@@ -119,23 +120,5 @@ def geneticAlgorithm(
     
     return population
 
-""" # Real Number range: a - lower bound, b - upper bound
-a = 0
-b = 10
-
-newPop = generatePopulation(5, 5, a, b)
-print(newPop)
-print("Testing Mutation:\nPrevious Genome:", newPop[0])
-simpleMutation(newPop[0], a, b)
-print("New Genome:", newPop[0])
-print("Testing Crossover:\nParents:", newPop[0], newPop[1], "\nOffSpring:", singlePointCrossover(newPop[0], newPop[1]))
-
-newGen = [1,1,1,1,1,1,1,1]
-print(rosenbrocksBanana(newGen))
- """
-newPop = geneticAlgorithm(30, 5, 5000, -5.12, 5.12, optF.rastrigin)
-
-""" print("\nResultados")
-for i in range(0, len(newPop)-1):
-    print(newPop[i], ":", optF.rastrigin(newPop[i]))
- """
+newPop = geneticAlgorithm(50, 5, 1000, -5.12, 5.12, optF.rastrigin)
+newPop = geneticAlgorithm(50, 2, 1000, -5, 5, optF.threeHumpCamel)
