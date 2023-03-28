@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import List, Callable
 import optimization_functions as optF
+import time
 
 Solution = List[float]
 OptFunction = Callable[[Solution], float]
@@ -31,6 +32,7 @@ def simulated_annealing(
         restartTreshold : float) \
             -> Solution:
     
+    start = time.time()
     iterations = np.array([])
     temperatures = np.array([])
     bestSolutions = np.array([])
@@ -47,21 +49,31 @@ def simulated_annealing(
         iterations = np.append(iterations, k)
         temperatures = np.append(temperatures, temperature)
 
+        # Se perturban las componentes de la solución actual, dando como resultado una nueva solución
         newSol = simplePerturbation(curSol.copy(), a, b)
         curCost = objectiveFunc(curSol)
         newCost = objectiveFunc(newSol)
         
+        # Se calcula la distancia entre la nueva solución y la anterior
         delta = newCost - curCost
+
+        # si la nueva solución es mejor la anterior, se reemplaza a la actual por la nueva
         if newCost < curCost:
             curSol = newSol
             if newCost < objectiveFunc(bestSol):
                 bestSol = newSol
+
+        # si no es así, se decide si hacer el reemplazo o no de acuerdo a p(e^(-delta/temp))
         else:
             if random.random() < math.exp(-delta / temperature):
                 curSol = newSol
+
+            # de acuerdo a p(e^(-delta/temp)), se realiza un incremento a la tempretura
             if random.random() < math.exp(-delta / temperature) and temperature < initialTemp:
                 temperature *= 1/coolingRate
 
+        # Con cada iteración, se reduce exponencialmente la temperatura de acuerdo a la razón especificada
+        # en la entrada de la función
         temperature *= coolingRate
 
         # Cuando se ha llegado a la mitad de la temperatura inticial y si el mejor resultado
@@ -74,19 +86,21 @@ def simulated_annealing(
 
         bestSolutions = np.append(bestSolutions, objectiveFunc(bestSol))
 
+    end = time.time()
     print("\nSimulated Annealing\n")
-    print("Initial Parameters")
-    print("\tInitial Temperature:", initialTemp)
-    print("\tStopping Temperature:", stopingTemp)
-    print("\tCooling Rate (Exponential):", coolingRate)
-    print("\tRestart treshold value:", restartTreshold)
+    print("Parámetros Inciales")
+    print("\tTemperatura inicial:", initialTemp)
+    print("\tTemperatura final:", stopingTemp)
+    print("\tRazón de enfriamiento (Exponential):", coolingRate)
+    print("\tValor de treshold para reiniciar:", restartTreshold)
 
-    print("\nResults")
-    print("\tTotal iterations:", k)
-    print("\tInitial Solution:", initialSol)
-    print("\tObjective Function value:", objectiveFunc(initialSol))
-    print("\n\tBest Solution:", bestSol)
-    print("\tObjective Function value:", objectiveFunc(bestSol))
+    print("\Resultados")
+    print("\tTotal de iteraciones:", k)
+    print(f"\tT total de ejecución: {end-start} s")
+    print("\tSolución Inicial:", initialSol)
+    print("\tValor de la función objetivo:", objectiveFunc(initialSol))
+    print("\n\tMejor Solución:", bestSol)
+    print("\tValor de la función objetivo:", objectiveFunc(bestSol))
 
     # Grafica de temperaturas
     plt.figure()
@@ -113,3 +127,4 @@ restartTreshold = 60
 
 simulated_annealing(optF.rastrigin, 5, -5.12, 5.12, temperature, coolingRate, stopingTemp, restartTreshold)
 simulated_annealing(optF.threeHumpCamel, 2, -5, 5, temperature, coolingRate, stopingTemp, restartTreshold)
+simulated_annealing(optF.rosenbrocksBanana, 2, -32, 32, temperature, coolingRate, stopingTemp, restartTreshold)

@@ -5,6 +5,7 @@ from typing import Callable, List, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import optimization_functions as optF
+import time
 
 Genome = List[float]
 Population = List[Genome]
@@ -50,6 +51,7 @@ def geneticAlgorithm(
         fitnessFunc : OptFunction) \
         -> Population:
     
+    start = time.time()
     gens=np.array([])
     fit =np.array([])
     f = np.array([])
@@ -58,7 +60,6 @@ def geneticAlgorithm(
     population = generatePopulation(popSize, genomeLen, a, b)
     population = sortPopulation(population, fitnessFunc)
 
-    #population += [[0,0,0,0,0]]
     for i in range(nGenerations):
         #print(i)
 
@@ -83,6 +84,7 @@ def geneticAlgorithm(
         gens = np.append(gens, i+1)    
         fit = np.append(fit, fitnessFunc(population[0]))
         f_mean = np.append(f_mean, total/popSize)
+    end = time.time()
 
     print("\nAlgoritmo Genetico")
     print("- Tamaño de Genotipo:\t\t", genomeLen)
@@ -97,6 +99,7 @@ def geneticAlgorithm(
         print("Se encontró un óptimo en la generación", i+1)
     else:
         print("No se encontró un óptimo")
+    print(f"\tT total de ejecución: {end-start} s")
 
     print("\nMejor Resultado")
     print("Genotipo:", population[0])
@@ -120,5 +123,6 @@ def geneticAlgorithm(
     
     return population
 
-newPop = geneticAlgorithm(50, 5, 1000, -5.12, 5.12, optF.rastrigin)
-newPop = geneticAlgorithm(50, 2, 1000, -5, 5, optF.threeHumpCamel)
+newPop = geneticAlgorithm(50, 5, 10000, -5.12, 5.12, optF.rastrigin)
+newPop = geneticAlgorithm(50, 2, 10000, -5, 5, optF.threeHumpCamel)
+newPop = geneticAlgorithm(50, 2, 10000, -32, 32, optF.rosenbrocksBanana)
